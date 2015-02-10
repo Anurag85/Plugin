@@ -6,29 +6,29 @@
 //
 //
 
+
 #import <UIKit/UIKit.h>
 
 @class CustomCamera;
 
-@interface CustomCameraViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface CustomCameraViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
 
-@property (strong, nonatomic) IBOutlet UIButton *cameraSelectionButton;
-@property (strong, nonatomic) IBOutlet UIButton *flashModeButton;
-@property (strong, nonatomic) IBOutlet UIButton *photoModeButton;
-@property (strong, nonatomic) IBOutlet UIButton *videoModeButton;
-@property (strong, nonatomic) IBOutlet UIButton *captureButton;
-@property (strong, nonatomic) IBOutlet UIButton *recentButton;
-@property (strong, nonatomic) IBOutlet UIButton *galleryButton;
+    @property (strong, nonatomic) IBOutlet UIButton *cameraSelectionButton;
+    @property (strong, nonatomic) IBOutlet UIButton *flashModeButton;
+    @property (strong, nonatomic) IBOutlet UIButton *captureButton;
+    @property (strong, nonatomic) IBOutlet UIButton *recentButton;
+    @property (strong, nonatomic) IBOutlet UIButton *galleryButton;
+
+    @property (strong, nonatomic) IBOutlet UIPickerView *modePicker;
 
 // Action method
 - (IBAction)captureButtonPressed:(id)sender;
-- (IBAction)modeButtonPressed:(id)sender;
 - (IBAction)flashButtonPressed:(id)sender;
 - (IBAction)cameraSelectionButtonPressed:(id)sender;
 - (IBAction)recentButtonPressed:(id)sender;
 - (IBAction)galleryButtonPressed:(id)sender;
 
-// Declare some properties (to be explained soon)
+// Declare some properties
 @property (strong, nonatomic) CustomCamera* cameraPlugin;
 @property (strong, nonatomic) UIImagePickerController* picker;
 
