@@ -6,6 +6,8 @@
 //
 //
 
+#import "CustomCamera.h"
+
 @interface CustomCamera ()
 {
     NSString *mode;
