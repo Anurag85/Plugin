@@ -37,13 +37,14 @@
                 <img id="photoImg" style="position: fixed; top: 0; width: 50%; left: 25%;" />
                 <script src="js/custom_camera.js"></script>
                 <script>
+                    var args = ["Both","Option2"];
                     document.getElementById("openCustomCameraBtn").addEventListener("click", function(){
-                                                                                    CustomCamera.getPicture(function(imagePath){
+                                                                                    CustomCamera.getPicture(args, function(imagePath){
                                                                                                             document.getElementById("photoImg").setAttribute("src", imagePath);
                                                                                                             }, function(){
                                                                                                             alert("Photo cancelled");
                                                                                                             });
-                                                                                    }, false);
+                                                                                    });
                 </script>
             </div>
         </div>
