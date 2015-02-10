@@ -15,11 +15,13 @@
 {
     BOOL photoModeActive;
     NSString *mediaPath;
+    
+    NSArray *modePickerDataArray;
+    NSInteger selectedRow;
 }
 
 @property (nonatomic) UIImagePickerControllerCameraFlashMode flashMode;
 
--(void)alignModeButtons;
 -(void)configureView;
 
 @end
@@ -61,6 +63,17 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
+    modePickerDataArray =[[NSArray alloc] initWithObjects:@"Video", @"Photo", nil];
+    
+    self.modePicker.delegate = self;
+    self.modePicker.showsSelectionIndicator =NO;
+    CGAffineTransform rotate = CGAffineTransformMakeRotation(-3.14/2);
+    rotate = CGAffineTransformScale(rotate, 0.25, 2.0);
+    [self.modePicker setTransform:rotate];
+    
+    selectedRow = 1;
+    
+    [self.modePicker selectRow:selectedRow inComponent:0 animated:NO];
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -74,33 +87,20 @@
     {
         self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
         photoModeActive = NO;
-        [self alignModeButtons];
     }
     else
     {
         self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModePhoto;
         photoModeActive = YES;
-//        [self alignModeButtons];
-        NSLog(@"Photo Center 1 -- %@",NSStringFromCGPoint(self.photoModeButton.center));
-        NSLog(@"Video Center 1 -- %@",NSStringFromCGPoint(self.videoModeButton.center));
-        
-        double photoY = (self.captureButton.center.y - ((self.captureButton.frame.size.height/2)+(self.photoModeButton.frame.size.height/2)+10));
-        self.photoModeButton.center = CGPointMake(self.captureButton.center.x, photoY);
-        double videoX = (self.photoModeButton.center.x -((self.photoModeButton.frame.size.width/2)+(self.videoModeButton.frame.size.width/2)+10));
-        self.videoModeButton.center = CGPointMake(videoX, self.photoModeButton.center.y);
-        NSLog(@"Photo Center 2 -- %@",NSStringFromCGPoint(self.photoModeButton.center));
-        NSLog(@"Video Center 2 -- %@",NSStringFromCGPoint(self.videoModeButton.center));
     }
     
     if([self.cameraMode isEqualToString:@"Both"])
     {
-        self.videoModeButton.hidden = NO;
-        self.photoModeButton.hidden = NO;
+        self.modePicker.hidden = NO;
     }
     else
     {
-        self.videoModeButton.hidden = YES;
-        self.photoModeButton.hidden = YES;
+        self.modePicker.hidden = YES;
     }
     
 }
@@ -111,14 +111,14 @@
 }
 
 /*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
 
 - (IBAction)captureButtonPressed:(id)sender
 {
@@ -132,59 +132,17 @@
         
         if (startRecording)
         {
-            self.photoModeButton.enabled = NO;
-            self.videoModeButton.enabled = NO;
+            self.modePicker.userInteractionEnabled = NO;
             [self.captureButton setTitle:@"Stop" forState:UIControlStateNormal];
         }
         else
         {
-            self.photoModeButton.enabled = YES;
-            self.videoModeButton.enabled = YES;
+            self.modePicker.userInteractionEnabled = YES;
             [self.captureButton setTitle:@"Capture" forState:UIControlStateNormal];
             [self.picker stopVideoCapture];
         }
     }
     
-}
-
-- (IBAction)modeButtonPressed:(id)sender
-{
-    UIButton *modeButton = sender;
-    
-    if(modeButton.tag == 0)
-    {
-        self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModePhoto;
-        photoModeActive = YES;
-    }
-    else if (modeButton.tag == 1)
-    {
-        self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
-        photoModeActive = NO;
-    }
-    
-    [self alignModeButtons];
-}
-
--(void)alignModeButtons
-{
-    if(photoModeActive)
-    {
-        double deltaX = self.captureButton.center.x - self.photoModeButton.center.x;
-        [UIView beginAnimations:nil context:nil];
-        [UIView setAnimationDuration:1.0f];
-        self.photoModeButton.center = CGPointMake(self.photoModeButton.center.x + deltaX, self.photoModeButton.center.y);
-        self.videoModeButton.center = CGPointMake(self.videoModeButton.center.x + deltaX, self.videoModeButton.center.y);
-        [UIView commitAnimations];
-    }
-    else
-    {
-        double deltaX = self.captureButton.center.x - self.videoModeButton.center.x;
-        [UIView beginAnimations:nil context:nil];
-        [UIView setAnimationDuration:1.0f];
-        self.photoModeButton.center = CGPointMake(self.photoModeButton.center.x + deltaX, self.photoModeButton.center.y);
-        self.videoModeButton.center = CGPointMake(self.videoModeButton.center.x + deltaX, self.videoModeButton.center.y);
-        [UIView commitAnimations];
-    }
 }
 
 - (IBAction)flashButtonPressed:(id)sender
@@ -212,8 +170,6 @@
         
         [flashButton setTitle:@"Flash Auto" forState:UIControlStateNormal];
     }
-    
-    [self alignModeButtons];
 }
 
 - (IBAction)cameraSelectionButtonPressed:(id)sender
@@ -232,8 +188,6 @@
         
         [cameraButton setTitle:@"Front Cam" forState:UIControlStateNormal];
     }
-    
-    [self alignModeButtons];
 }
 
 - (IBAction)recentButtonPressed:(id)sender
@@ -293,9 +247,74 @@
         }
         
         [movieData writeToFile:mediaPath atomically:YES];
+        
+        AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
+        AVAssetImageGenerator *generateImg = [[AVAssetImageGenerator alloc] initWithAsset:asset];
+        NSError *error = NULL;
+        CMTime time = CMTimeMake(1, 1);
+        CGImageRef refImg = [generateImg copyCGImageAtTime:time actualTime:NULL error:&error];
+//        NSLog(@"error==%@, Refimage==%@", error, refImg);
+        
+        UIImage *videoThumbnail= [[UIImage alloc] initWithCGImage:refImg];
+        
+        [self.recentButton setImage:videoThumbnail forState:UIControlStateNormal];
+    }
+}
+
+#pragma mark --
+#pragma mark UIPickerView DataSource
+
+// returns the number of 'columns' to display.
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+{
+    return 1;
+}
+
+// returns the # of rows in each component..
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+{
+    return [modePickerDataArray count];
+}
+
+#pragma mark --
+#pragma mark UIPickerView Delegate
+
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
+{
+    CGRect rect = CGRectMake(0, 0, 100, 30);
+    UILabel *label = [[UILabel alloc] initWithFrame:rect];
+    CGAffineTransform rotate = CGAffineTransformMakeRotation(3.14/2);
+    rotate = CGAffineTransformScale(rotate, 0.25, 2.0);
+    [label setTransform:rotate];
+    label.text = [modePickerDataArray objectAtIndex:row];
+    label.font = [UIFont boldSystemFontOfSize:30.0];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.numberOfLines = 1;
+    label.backgroundColor = [UIColor clearColor];
+    label.textColor = [UIColor whiteColor];
+    if(row == selectedRow)
+    {
+        label.textColor = [UIColor yellowColor];
+    }
+    label.clipsToBounds = YES;
+    return label ;
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
+{
+    if(row == 0)
+    {
+        self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
+        photoModeActive = NO;
+    }
+    else if (row == 1)
+    {
+        self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModePhoto;
+        photoModeActive = YES;
     }
     
-    
+    selectedRow = row;
+    [self.modePicker reloadComponent:0];
 }
 
 @end
