@@ -6,10 +6,6 @@
 //
 //
 
-#import <Cordova/CDV.h>
-
-#import "CustomCameraViewController.h"
-
 @interface CustomCamera : CDVPlugin
 
 // Cordova command method
