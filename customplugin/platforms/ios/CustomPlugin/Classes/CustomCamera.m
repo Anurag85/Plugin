@@ -6,8 +6,6 @@
 //
 //
 
-#import "CustomCamera.h"
-
 @interface CustomCamera ()
 {
     NSString *mode;
@@ -24,12 +22,12 @@
     
     // Save the CDVInvokedUrlCommand as a property.  We will need it later.
     self.latestCommand = command;
-    self.cameraMode = [NSString stringWithFormat:@"Video"];//@"Video";
+    self.cameraMode = [self.latestCommand.arguments firstObject]; // Possible values 'Video','Photo' and 'Both';
     
     // Make the overlay view controller.
     self.overlayView = [[CustomCameraViewController alloc] initWithNibName:@"CustomCameraViewController" bundle:nil];
     self.overlayView.cameraPlugin = self;
-    self.overlayView.cameraMode = @"Both";
+    self.overlayView.cameraMode = self.cameraMode;
     
     [self.viewController presentViewController:self.overlayView.picker animated:YES completion:nil];
 }
@@ -41,7 +39,7 @@
     self.hasPendingOperation = NO;
     
     // Hide the picker view
-    //    [self.viewController dismissModalViewControllerAnimated:YES];
+//    [self.viewController dismissModalViewControllerAnimated:YES];
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
