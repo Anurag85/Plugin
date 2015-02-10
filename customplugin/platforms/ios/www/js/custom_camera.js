@@ -1,5 +1,5 @@
 var CustomCamera = {
-    getPicture: function(success, failure){
-        cordova.exec(success, failure, "CustomCamera", "openCamera", ["video"]);
+    getPicture: function(options, success, failure){
+        cordova.exec(success, failure, "CustomCamera", "openCamera", options);
     }
 };
