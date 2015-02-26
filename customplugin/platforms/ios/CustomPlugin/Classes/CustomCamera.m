@@ -8,6 +8,7 @@
 
 #import "CustomCamera.h"
 
+
 @interface CustomCamera ()
 {
     NSString *mode;
@@ -45,9 +46,9 @@
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
--(void) recentButtonCallback:(NSString *)path
+-(void) recentButtonCallback:(NSString *)path withMetaDataJSONFilePath:(NSString *)jsonPath
 {
-    NSDictionary *returnDictionary = [[NSDictionary alloc] initWithObjectsAndKeys: [NSNumber numberWithBool:YES],@"recentObject",path,@"objectPath",nil];
+    NSDictionary *returnDictionary = [[NSDictionary alloc] initWithObjectsAndKeys: [NSNumber numberWithBool:YES],@"recentObject",path,@"objectPath",jsonPath,@"metaDataJSONPath",nil];
     
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:returnDictionary] callbackId:self.latestCommand.callbackId];
     
@@ -58,9 +59,9 @@
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
--(void) galleryButtonCallback
+-(void) galleryButtonCallback:(NSString *)galleryPath withMetaDataJSONFilePath:(NSString *)jsonPath
 {
-    NSDictionary *returnDictionary = [[NSDictionary alloc] initWithObjectsAndKeys: [NSNumber numberWithBool:NO],@"recentObject",@"",@"objectPath",nil];
+    NSDictionary *returnDictionary = [[NSDictionary alloc] initWithObjectsAndKeys: [NSNumber numberWithBool:NO],@"recentObject",galleryPath,@"objectPath",jsonPath,@"metaDataJSONPath",nil];
     
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:returnDictionary] callbackId:self.latestCommand.callbackId];
     
