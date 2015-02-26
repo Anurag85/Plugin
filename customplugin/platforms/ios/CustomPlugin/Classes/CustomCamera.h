@@ -7,7 +7,6 @@
 //
 
 #import <Cordova/CDV.h>
-
 #import "CustomCameraViewController.h"
 
 @interface CustomCamera : CDVPlugin
@@ -18,8 +17,8 @@
 
 -(void) capturedImageWithPath:(NSString*)imagePath;
 
--(void)recentButtonCallback:(NSString *)path;
--(void)galleryButtonCallback;
+-(void)recentButtonCallback:(NSString *)path withMetaDataJSONFilePath:(NSString *)jsonPath;
+-(void)galleryButtonCallback:(NSString *)galleryPath withMetaDataJSONFilePath:(NSString *)jsonPath;
 
 @property (strong, nonatomic) CustomCameraViewController* overlayView;
 @property (strong, nonatomic) CDVInvokedUrlCommand* latestCommand;
