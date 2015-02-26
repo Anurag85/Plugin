@@ -8,10 +8,11 @@
 
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 
 @class CustomCamera;
 
-@interface CustomCameraViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
+@interface CustomCameraViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPickerViewDataSource, UIPickerViewDelegate, CLLocationManagerDelegate>
 
     @property (strong, nonatomic) IBOutlet UIButton *cameraSelectionButton;
     @property (strong, nonatomic) IBOutlet UIButton *flashModeButton;
