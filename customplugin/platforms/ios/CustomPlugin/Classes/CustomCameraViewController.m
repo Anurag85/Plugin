@@ -6,10 +6,23 @@
 //
 //
 
+//
+//  CustomCameraViewController.m
+//  CustomPlugin
+//
+//  Created by Gupta, Anurag K. on 1/30/15.
+//
+//
+
 #import "CustomCameraViewController.h"
 #import "CustomCamera.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <AVFoundation/AVFoundation.h>
+#import <CoreLocation/CoreLocation.h>
+
+#define GALLERY_FOLDER_NAME @"Gallery"
+#define META_DATA_FILE_NAME @"MetaData"
+#define TIME_STAMP [NSString stringWithFormat:@"%f",[[NSDate date] timeIntervalSince1970]]
 
 @interface CustomCameraViewController ()
 {
@@ -18,11 +31,19 @@
     
     NSArray *modePickerDataArray;
     NSInteger selectedRow;
+    
+    CLLocationManager *locationManager;
+    CLLocation *userLocation;
+    
+    NSString *documentDirectory;
+    NSString *galleryPath;
+    NSString *jsonFilePath;
 }
 
 @property (nonatomic) UIImagePickerControllerCameraFlashMode flashMode;
 
 -(void)configureView;
+-(void)saveMetaDataOfMediaWithName:(NSString *)name ofType:(NSString *)type availabelAtPath:(NSString *)path;
 
 @end
 
@@ -74,6 +95,34 @@
     selectedRow = 1;
     
     [self.modePicker selectRow:selectedRow inComponent:0 animated:NO];
+    
+    //Create "Gallery" Folder
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    documentDirectory = [paths objectAtIndex:0];
+    galleryPath = [documentDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"/%@",GALLERY_FOLDER_NAME]];
+    jsonFilePath = [galleryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"/%@.json",META_DATA_FILE_NAME]];
+    
+    if(![[NSFileManager defaultManager] fileExistsAtPath:galleryPath])
+    {
+        NSError *error;
+        [[NSFileManager defaultManager] createDirectoryAtPath:galleryPath withIntermediateDirectories:NO attributes:nil error:&error]; //Create "Gallery" folder
+    }
+    
+    if(![[NSFileManager defaultManager] fileExistsAtPath:jsonFilePath])
+    {
+        NSMutableArray *jsonArray = [[NSMutableArray alloc] init];
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonArray
+                                                           options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                             error:&error];
+        [jsonData writeToFile:jsonFilePath atomically:YES];
+    }
+    
+    locationManager = [[CLLocationManager alloc] init];
+    locationManager.delegate = self;
+    locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    
+    [locationManager startUpdatingLocation];
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -102,6 +151,8 @@
     {
         self.modePicker.hidden = YES;
     }
+    
+    self.recentButton.enabled = NO;
     
 }
 
@@ -143,6 +194,7 @@
         }
     }
     
+    self.recentButton.enabled = YES;
 }
 
 - (IBAction)flashButtonPressed:(id)sender
@@ -192,12 +244,12 @@
 
 - (IBAction)recentButtonPressed:(id)sender
 {
-    [self.cameraPlugin recentButtonCallback:mediaPath];
+    [self.cameraPlugin recentButtonCallback:mediaPath withMetaDataJSONFilePath:jsonFilePath];
 }
 
 - (IBAction)galleryButtonPressed:(id)sender
 {
-    [self.cameraPlugin galleryButtonCallback];
+    [self.cameraPlugin galleryButtonCallback:galleryPath withMetaDataJSONFilePath:jsonFilePath];
 }
 
 #pragma mark --
@@ -205,17 +257,17 @@
 
 -(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    // Get a file path to save the media
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString* documentsDirectory = [paths objectAtIndex:0];
+    //Timestamp
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"yyyy-MM-dd-HH-mm-ss"];
+    NSString *fileName = [dateFormat stringFromDate:[NSDate date]];
     
     if (photoModeActive)
     {
         // Get a reference to the captured image
         UIImage* image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        NSString* filename = @"recent_photo.jpg";
         
-        mediaPath = [documentsDirectory stringByAppendingPathComponent:filename];
+        mediaPath = [galleryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"/%@.jpg",fileName]];
         
         // Get the image data (blocking; around 1 second)
         NSData* imageData = UIImageJPEGRepresentation(image, 0.5);
@@ -230,13 +282,14 @@
         [imageData writeToFile:mediaPath atomically:YES];
         
         [self.recentButton setImage:[UIImage imageWithContentsOfFile:mediaPath] forState:UIControlStateNormal];
+        
+        [self saveMetaDataOfMediaWithName:fileName ofType:@".jpg" availabelAtPath:mediaPath];
     }
     else
     {
         NSURL *videoURL = [info valueForKey:UIImagePickerControllerMediaURL];
-        NSString* filename = @"recent_video.mov";
         
-        mediaPath = [documentsDirectory stringByAppendingPathComponent:filename];
+        mediaPath = [galleryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"/%@.mov",fileName]];
         
         NSData *movieData = [NSData dataWithContentsOfURL:videoURL];
         
@@ -258,6 +311,54 @@
         UIImage *videoThumbnail= [[UIImage alloc] initWithCGImage:refImg];
         
         [self.recentButton setImage:videoThumbnail forState:UIControlStateNormal];
+        
+        [self saveMetaDataOfMediaWithName:fileName ofType:@".mov" availabelAtPath:mediaPath];
+    }
+}
+
+-(void)saveMetaDataOfMediaWithName:(NSString *)name ofType:(NSString *)type availabelAtPath:(NSString *)path
+{
+    NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFilePath encoding:NSUTF8StringEncoding error:NULL];
+    NSError *jsonError;
+    NSMutableArray *jsonArray = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:&jsonError];
+    
+    NSMutableDictionary *metaDict = [[NSMutableDictionary alloc] init];
+    [metaDict setObject:name forKey:@"name"];
+    [metaDict setObject:type forKey:@"type"];
+    [metaDict setObject:path forKey:@"path"];
+    if(userLocation != nil)
+    {
+        [metaDict setObject:[NSString stringWithFormat:@"%f",userLocation.coordinate.latitude] forKey:@"latitude"];
+        [metaDict setObject:[NSString stringWithFormat:@"%f",userLocation.coordinate.longitude] forKey:@"longitude"];
+    }
+    
+    [metaDict setObject:[NSNumber numberWithBool:NO] forKey:@"isUploaded"];
+    
+    [jsonArray addObject:metaDict];
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonArray
+                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                         error:&jsonError];
+    [jsonData writeToFile:jsonFilePath atomically:YES];
+}
+
+#pragma mark - CLLocationManagerDelegate
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+//    NSLog(@"didFailWithError: %@", error);
+    UIAlertView *errorAlert = [[UIAlertView alloc]
+                               initWithTitle:@"Error" message:@"Failed to Get Your Location" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    [errorAlert show];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+//    NSLog(@"didUpdateToLocation: %@", newLocation);
+    userLocation = newLocation;
+    
+    if (userLocation != nil) {
+        [locationManager stopUpdatingLocation];
     }
 }
 
