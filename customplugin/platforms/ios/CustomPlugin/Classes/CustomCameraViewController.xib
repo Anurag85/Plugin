@@ -14,6 +14,7 @@
                 <outlet property="galleryButton" destination="l76-VJ-xnd" id="goZ-xc-iW0"/>
                 <outlet property="modePicker" destination="rm3-xq-6id" id="7N4-aF-er5"/>
                 <outlet property="recentButton" destination="ASZ-pP-az8" id="tyA-bM-VNS"/>
+                <outlet property="videoRecordingTimerLabel" destination="AS2-8T-Zju" id="vgO-IA-ZHo"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -22,6 +23,17 @@
             <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
+                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AS2-8T-Zju">
+                    <rect key="frame" x="265" y="28" width="70" height="21"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="70" id="HmQ-jE-DHS"/>
+                        <constraint firstAttribute="height" constant="21" id="XPO-8G-H9U"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ChV-3U-Rco">
                     <rect key="frame" x="497" y="28" width="75" height="30"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -127,6 +139,7 @@
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             <constraints>
+                <constraint firstItem="AS2-8T-Zju" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="28" id="1Bc-gY-5kJ"/>
                 <constraint firstAttribute="trailingMargin" secondItem="l76-VJ-xnd" secondAttribute="trailing" constant="20" id="3XN-CO-mgE"/>
                 <constraint firstAttribute="bottomMargin" secondItem="ASZ-pP-az8" secondAttribute="bottom" constant="20" id="BL8-gA-x2a"/>
                 <constraint firstItem="ChV-3U-Rco" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="topMargin" constant="20" id="LcF-Ne-Y0p"/>
@@ -138,6 +151,7 @@
                 <constraint firstItem="sJB-XB-nu9" firstAttribute="top" secondItem="TNu-h8-Lju" secondAttribute="bottom" constant="10" id="czk-oy-SN8"/>
                 <constraint firstAttribute="centerX" secondItem="TNu-h8-Lju" secondAttribute="centerX" id="hM2-UV-RvW"/>
                 <constraint firstAttribute="bottomMargin" secondItem="l76-VJ-xnd" secondAttribute="bottom" constant="20" id="ieF-rt-99P"/>
+                <constraint firstAttribute="centerX" secondItem="AS2-8T-Zju" secondAttribute="centerX" id="q54-jO-A9h"/>
                 <constraint firstItem="ASZ-pP-az8" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leadingMargin" constant="20" id="qxe-Cn-T3V"/>
             </constraints>
         </view>
