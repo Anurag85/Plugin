@@ -6,14 +6,6 @@
 //
 //
 
-//
-//  CustomCameraViewController.m
-//  CustomPlugin
-//
-//  Created by Gupta, Anurag K. on 1/30/15.
-//
-//
-
 #import "CustomCameraViewController.h"
 #import "CustomCamera.h"
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -38,12 +30,19 @@
     NSString *documentDirectory;
     NSString *galleryPath;
     NSString *jsonFilePath;
+    
+    NSDate *videoRecordingStartTime;
+    NSTimer *recordingTimer;
+    NSString *recordingTimerText;
+    BOOL stopTheTimer;
 }
 
 @property (nonatomic) UIImagePickerControllerCameraFlashMode flashMode;
 
 -(void)configureView;
 -(void)saveMetaDataOfMediaWithName:(NSString *)name ofType:(NSString *)type availabelAtPath:(NSString *)path;
+
+-(void)settingVideoTimerLabel;
 
 @end
 
@@ -83,6 +82,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    
+    recordingTimerText = @"00:00:00";
+    stopTheTimer = YES;
     
     modePickerDataArray =[[NSArray alloc] initWithObjects:@"Video", @"Photo", nil];
     
@@ -136,11 +138,14 @@
     {
         self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
         photoModeActive = NO;
+        self.videoRecordingTimerLabel.hidden = NO;
+        self.videoRecordingTimerLabel.text = recordingTimerText;
     }
     else
     {
         self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModePhoto;
         photoModeActive = YES;
+        self.videoRecordingTimerLabel.hidden = YES;
     }
     
     if([self.cameraMode isEqualToString:@"Both"])
@@ -183,18 +188,39 @@
         
         if (startRecording)
         {
+            stopTheTimer = NO;
+            videoRecordingStartTime = [NSDate date];
+            recordingTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(settingVideoTimerLabel) userInfo:nil repeats:NO];
             self.modePicker.userInteractionEnabled = NO;
             [self.captureButton setTitle:@"Stop" forState:UIControlStateNormal];
         }
         else
         {
-            self.modePicker.userInteractionEnabled = YES;
-            [self.captureButton setTitle:@"Capture" forState:UIControlStateNormal];
+            stopTheTimer= YES;
             [self.picker stopVideoCapture];
         }
     }
     
     self.recentButton.enabled = YES;
+}
+
+-(void)settingVideoTimerLabel
+{
+    NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:videoRecordingStartTime];
+    
+    NSInteger hours = floor(interval/(60*60));
+    NSInteger minutes = floor((interval/60) - hours * 60);
+    NSInteger seconds = floor(interval - (minutes * 60) - (hours * 60 * 60));
+    
+//    NSLog(@"Timer - %ld:%ld:%ld",(long)hours,(long)minutes,(long)seconds);
+    
+    recordingTimerText = [NSString stringWithFormat:@"%0.2ld:%0.2ld:%0.2ld",(long)hours,(long)minutes,(long)seconds];
+    self.videoRecordingTimerLabel.text = recordingTimerText;
+    
+    if(!stopTheTimer)
+    {
+        recordingTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(settingVideoTimerLabel) userInfo:nil repeats:NO];
+    }
 }
 
 - (IBAction)flashButtonPressed:(id)sender
@@ -287,6 +313,13 @@
     }
     else
     {
+        recordingTimerText = @"00:00:00";
+        self.videoRecordingTimerLabel.text = recordingTimerText;
+        stopTheTimer = YES;
+        
+        self.modePicker.userInteractionEnabled = YES;
+        [self.captureButton setTitle:@"Capture" forState:UIControlStateNormal];
+        
         NSURL *videoURL = [info valueForKey:UIImagePickerControllerMediaURL];
         
         mediaPath = [galleryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"/%@.mov",fileName]];
@@ -407,11 +440,13 @@
     {
         self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
         photoModeActive = NO;
+        self.videoRecordingTimerLabel.hidden = NO;
     }
     else if (row == 1)
     {
         self.picker.cameraCaptureMode = UIImagePickerControllerCameraCaptureModePhoto;
         photoModeActive = YES;
+        self.videoRecordingTimerLabel.hidden = YES;
     }
     
     selectedRow = row;
