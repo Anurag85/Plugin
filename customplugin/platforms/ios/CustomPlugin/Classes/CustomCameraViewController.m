@@ -135,12 +135,7 @@
         
         
         if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
-            
             [locationManager requestWhenInUseAuthorization];
-            
-        }
-        else if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized) {
-            [locationManager startUpdatingLocation];
         }
     }
     else
