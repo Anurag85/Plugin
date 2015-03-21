@@ -30,6 +30,7 @@
 		30FC414916E50CA1004E6F35 /* icon-72@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FC414816E50CA1004E6F35 /* icon-72@2x.png */; };
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
 		75B37E221A891D42001BBA04 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75B37E211A891D42001BBA04 /* AVFoundation.framework */; };
+		75E1449D1ABD4331009E2D81 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75E1449C1ABD4331009E2D81 /* CoreLocation.framework */; };
 		75E1E7C31A7C80B70055E2A1 /* CustomCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E1E7C21A7C80B70055E2A1 /* CustomCamera.m */; };
 		75E1E7C71A7C81070055E2A1 /* CustomCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 75E1E7C51A7C81070055E2A1 /* CustomCameraViewController.m */; };
 		75E1E7C81A7C81070055E2A1 /* CustomCameraViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 75E1E7C61A7C81070055E2A1 /* CustomCameraViewController.xib */; };
@@ -92,6 +93,7 @@
 		32CA4F630368D1EE00C91783 /* CustomPlugin-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CustomPlugin-Prefix.pch"; sourceTree = "<group>"; };
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		75B37E211A891D42001BBA04 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		75E1449C1ABD4331009E2D81 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		75E1E7C11A7C80B70055E2A1 /* CustomCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomCamera.h; sourceTree = "<group>"; };
 		75E1E7C21A7C80B70055E2A1 /* CustomCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomCamera.m; sourceTree = "<group>"; };
 		75E1E7C41A7C81070055E2A1 /* CustomCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomCameraViewController.h; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75E1449D1ABD4331009E2D81 /* CoreLocation.framework in Frameworks */,
 				75B37E221A891D42001BBA04 /* AVFoundation.framework in Frameworks */,
 				5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */,
 				301BF552109A68D80062928A /* libCordova.a in Frameworks */,
@@ -199,6 +202,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				75E1449C1ABD4331009E2D81 /* CoreLocation.framework */,
 				75B37E211A891D42001BBA04 /* AVFoundation.framework */,
 				5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,

@@ -21,6 +21,7 @@
     @property (strong, nonatomic) IBOutlet UIButton *galleryButton;
 
     @property (strong, nonatomic) IBOutlet UIPickerView *modePicker;
+    @property (strong, nonatomic) IBOutlet UILabel *videoRecordingTimerLabel;
 
 // Action method
 - (IBAction)captureButtonPressed:(id)sender;

@@ -26,6 +26,9 @@
     
     CLLocationManager *locationManager;
     CLLocation *userLocation;
+    CLGeocoder *geocoder;
+    NSString *userLocality;
+    NSString *userSublocality;
     
     NSString *documentDirectory;
     NSString *galleryPath;
@@ -43,6 +46,9 @@
 -(void)saveMetaDataOfMediaWithName:(NSString *)name ofType:(NSString *)type availabelAtPath:(NSString *)path;
 
 -(void)settingVideoTimerLabel;
+-(void)callReverseGeocodingAPI;
+
+-(void)showAlertViewWithTitle:(NSString *)title withMessage:(NSString *)message;
 
 @end
 
@@ -120,11 +126,28 @@
         [jsonData writeToFile:jsonFilePath atomically:YES];
     }
     
-    locationManager = [[CLLocationManager alloc] init];
-    locationManager.delegate = self;
-    locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    if([CLLocationManager locationServicesEnabled])
+    {
+        locationManager = [[CLLocationManager alloc] init];
+        locationManager.delegate = self;
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        
+        
+        
+        if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+            
+            [locationManager requestWhenInUseAuthorization];
+            
+        }
+        else if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized) {
+            [locationManager startUpdatingLocation];
+        }
+    }
+    else
+    {
+        
+    }
     
-    [locationManager startUpdatingLocation];
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -363,6 +386,18 @@
     {
         [metaDict setObject:[NSString stringWithFormat:@"%f",userLocation.coordinate.latitude] forKey:@"latitude"];
         [metaDict setObject:[NSString stringWithFormat:@"%f",userLocation.coordinate.longitude] forKey:@"longitude"];
+        [metaDict setObject:userLocality forKey:@"locality"];
+        [metaDict setObject:userSublocality forKey:@"sublocality"];
+    }
+    else
+    {
+        NSLog(@"userLocation is nil");
+        [self showAlertViewWithTitle:@"User Location" withMessage:@"User Location is nil"];
+        
+        [metaDict setObject:@"" forKey:@"latitude"];
+        [metaDict setObject:@"" forKey:@"longitude"];
+        [metaDict setObject:@"" forKey:@"locality"];
+        [metaDict setObject:@"" forKey:@"sublocality"];
     }
     
     [metaDict setObject:[NSNumber numberWithBool:NO] forKey:@"isUploaded"];
@@ -375,14 +410,34 @@
     [jsonData writeToFile:jsonFilePath atomically:YES];
 }
 
+-(void)callReverseGeocodingAPI
+{
+    if(userLocation != nil)
+    {
+        if (!geocoder)
+        geocoder = [[CLGeocoder alloc] init];
+        
+        [geocoder reverseGeocodeLocation:userLocation completionHandler:
+         ^(NSArray* placemarks, NSError* error){
+             if ([placemarks count] > 0)
+             {
+                 CLPlacemark *placemark = [placemarks objectAtIndex:0];
+                 
+                 userLocality = placemark.locality;
+                 userSublocality = placemark.subLocality;
+                 NSLog(@"Sublocality - %@, Locality - %@",placemark.subLocality,placemark.locality);
+                 [self showAlertViewWithTitle:@"Location" withMessage:[NSString stringWithFormat:@"Sublocality - %@, Locality - %@",placemark.subLocality,placemark.locality]];
+             }
+         }];
+    }
+}
+
 #pragma mark - CLLocationManagerDelegate
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
 //    NSLog(@"didFailWithError: %@", error);
-    UIAlertView *errorAlert = [[UIAlertView alloc]
-                               initWithTitle:@"Error" message:@"Failed to Get Your Location" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    [errorAlert show];
+    [self showAlertViewWithTitle:@"Error" withMessage:@"Failed to Get Your Location"];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
@@ -391,7 +446,25 @@
     userLocation = newLocation;
     
     if (userLocation != nil) {
+        [self callReverseGeocodingAPI];
         [locationManager stopUpdatingLocation];
+    }
+    else
+    {
+        [self showAlertViewWithTitle:@"User Location in Delegate" withMessage:@"User Location is nil"];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    /*
+     The delegate function will be called when the permission status changes the application should then attempt to handle the change appropriately by changing UI or setting up or tearing down data structures.
+     */
+    if(status != kCLAuthorizationStatusAuthorizedWhenInUse) {
+        [locationManager requestWhenInUseAuthorization];
+    }
+    else
+    {
+        [locationManager startUpdatingLocation];
     }
 }
 
@@ -451,6 +524,14 @@
     
     selectedRow = row;
     [self.modePicker reloadComponent:0];
+}
+
+-(void)showAlertViewWithTitle:(NSString *)title withMessage:(NSString *)message
+{
+    UIAlertView *alertView = [[UIAlertView alloc]
+                                      initWithTitle:title message:message delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    [alertView show];
+    alertView = nil;
 }
 
 @end
