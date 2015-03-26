@@ -81,6 +81,15 @@
         
         // Set this VC's view as the overlay view for the UIImagePickerController
         self.picker.cameraOverlayView = self.view;
+        
+        CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+        float cameraAspectRatio = 4.0 / 3.0;
+        //float imageWidth = floorf(screenSize.width * cameraAspectRatio);
+        float imageWidth = screenSize.height / cameraAspectRatio;
+        float scale = ceilf((screenSize.height / imageWidth) * 10.0) / 10.0;
+        
+        self.picker.cameraViewTransform = CGAffineTransformMakeScale(scale, scale);
+        
     }
     return self;
 }
@@ -328,6 +337,8 @@
         [self.recentButton setImage:[UIImage imageWithContentsOfFile:mediaPath] forState:UIControlStateNormal];
         
         [self saveMetaDataOfMediaWithName:fileName ofType:@".jpg" availabelAtPath:mediaPath];
+        
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
     }
     else
     {
@@ -364,6 +375,8 @@
         [self.recentButton setImage:videoThumbnail forState:UIControlStateNormal];
         
         [self saveMetaDataOfMediaWithName:fileName ofType:@".mov" availabelAtPath:mediaPath];
+        
+        UISaveVideoAtPathToSavedPhotosAlbum([videoURL absoluteString], nil, nil, nil);
     }
 }
 
