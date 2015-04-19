@@ -152,6 +152,13 @@
         
     }
     
+    AVAuthorizationStatus cameraStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    
+    if(cameraStatus == AVAuthorizationStatusDenied)
+    {
+        [self showAlertViewWithTitle:@"Camera Denied" withMessage:@""];
+    }
+    
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -540,6 +547,11 @@
                                       initWithTitle:title message:message delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [alertView show];
     alertView = nil;
+}
+
+-(void) editJSONFile:(NSString *)jsonString
+{
+    [self showAlertViewWithTitle:@"Edit Function Call" withMessage:jsonString];
 }
 
 @end

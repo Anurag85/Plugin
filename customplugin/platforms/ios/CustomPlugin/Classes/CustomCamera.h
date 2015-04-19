@@ -13,6 +13,7 @@
 
 // Cordova command method
 -(void) openCamera:(CDVInvokedUrlCommand*)command;
+-(void)editMetaData:(CDVInvokedUrlCommand *)command;
 
 
 -(void) capturedImageWithPath:(NSString*)imagePath;

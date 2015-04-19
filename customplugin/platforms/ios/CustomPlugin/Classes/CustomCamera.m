@@ -72,4 +72,20 @@
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+-(void)editMetaData:(CDVInvokedUrlCommand *)command {
+    // Set the hasPendingOperation field to prevent the webview from crashing
+    self.hasPendingOperation = YES;
+    
+    // Save the CDVInvokedUrlCommand as a property.  We will need it later.
+    self.latestCommand = command;
+    self.cameraMode = [self.latestCommand.arguments firstObject]; // Possible values 'Video','Photo' and 'Both';
+    
+    // Make the overlay view controller.
+    self.overlayView = [[CustomCameraViewController alloc] initWithNibName:@"CustomCameraViewController" bundle:nil];
+    self.overlayView.cameraPlugin = self;
+    self.overlayView.cameraMode = self.cameraMode;
+    
+    [self.overlayView editJSONFile:@"Anurag"];
+}
+
 @end

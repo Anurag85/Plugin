@@ -37,4 +37,6 @@
 @property (strong, nonatomic) NSString *cameraMode;
 @property (strong, nonatomic) NSString *directoryPath;
 
+-(void) editJSONFile:(NSString *)jsonString;
+
 @end
